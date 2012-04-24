@@ -1,0 +1,43 @@
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  // Socket configuration
+  var endpoint = 'http://localhost:8080';
+  var retry_interval = 3000;
+  
+  // Create a guest nickname
+  var d = new Date();
+  var nickname = 'Guest-'+d.getSeconds()+'-'+d.getMinutes()+'-'+d.getHours();
+
+  // Socket state
+  var socket = io.connect(endpoint);
+    
+  // Socket events
+  socket.on('connect', function(){
+    $('#server').html('Connected!');
+    socket.emit('hello', nickname);
+  });
+  
+  socket.on('disconnect', function(s){
+    $('#server').html('Disconnected. Waiting for server to come back... <a href="" id="reload">reload</a>');
+    console.log(s);
+  });
+  
+  socket.on('msg', function(data) {
+    $('#msgs').html(JSON.stringify(data));
+  });
+  
+  // User interface
+  $(document).ready(function(){
+    $('#sayHi').click(function(){ socket.send('hi'); });
+    $('#reload').click(function(){ location.reload(); });
+  });
+  
+</script>
+<div id="server">
+  Connecting to server ...
+</div>
+<div id="msgs">
+  
+</div>
+<input type="button" id="sayHi" value="Say hi">
